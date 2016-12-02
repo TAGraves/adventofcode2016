@@ -51,3 +51,40 @@ function findTotalDistance(input, startingDirection) {
 
 const activityA = findTotalDistance(INPUT, startingDirection);
 
+const startingLocation = [0, 0]; // [N, E]
+
+function twiceReducer(locationData, instruction) {
+    const newData = locationData;
+    const newDirection = findNewDirection(instruction.direction, locationData.currentDirection);
+    const positive = newDirection === 'NORTH' || newDirection === 'EAST';
+    const directionIndex = DIRECTIONS.indexOf(newDirection);
+    const whichWay = directionIndex % 2;
+    for (let i = 1; i < instruction.distance + 1; i += 1) {
+        if (positive) {
+            newData.currentLocation[whichWay] += 1;
+        } else {
+            const direction = (newDirection === 'SOUTH') ? 'NORTH' : 'EAST';
+            newData.currentLocation[whichWay] -= 1;
+        }
+        const directionString = newData.currentLocation.join(',');
+        if (newData.attendedLocations.indexOf(directionString) !== -1 && !newData.firstVisitedLocation) newData.firstVisitedLocation = directionString;
+        newData.attendedLocations.push(directionString);
+    }
+    newData.currentDirection = newDirection;
+    return newData;
+}
+
+function findTwiceToldLocation(input, startingDirection, startingLocation) {
+    const instructions = parseInput(input);
+    const locationData = {
+        attendedLocations: [],
+        firstVisitedLocation: null,
+        currentDirection: startingDirection,
+        currentLocation: startingLocation,
+    };
+    const twiceToldLocation = instructions.reduce(twiceReducer, locationData);
+    const location = twiceToldLocation.firstVisitedLocation.split(',');
+    return Math.abs(parseInt(location[0], 10)) + Math.abs(parseInt(location[1], 10));
+}
+
+const activityB = findTwiceToldLocation(INPUT, startingDirection, startingLocation);
