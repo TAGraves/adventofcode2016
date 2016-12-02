@@ -42,14 +42,13 @@ function lineReducer(keypad, startingSpot, instruction) {
             if (keypad[startingSpot.line].length - 1 > startingSpot.index) spotClone.index += 1;
             break;
         case 'D':
-            if(keypad.length - 1 > startingSpot.line) spotClone.line += 1;
+            if (keypad.length - 1 > startingSpot.line) spotClone.line += 1;
             break;
         case 'L':
             if (startingSpot.index !== 0) spotClone.index -= 1;
             break;
     }
     const key = keypad[spotClone.line][spotClone.index];
-    console.log(startingSpot, instruction, spotClone, key);
     return (key && key !== ' ') ? spotClone : startingSpot;
 }
 
