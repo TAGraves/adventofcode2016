@@ -1599,21 +1599,37 @@ const INPUT = `\
    68  744  665
   919  923  873`;
 
-  function parseInput(input) {
-      return input.split('\n').map((sides) => {
-          return sides.trim().replace(/( +)/g, '-').split('-').map(parseFloat).sort((a, b) => a - b);
-      });
-  }
+function parseInput(input) {
+    return input.split('\n').map((sides) => {
+        return cleanUpSides(sides).sort(numericSort);
+    });
+}
 
-  function findLegalTriangles(input) {
-      const sides = parseInput(input);
-      let legal = 0;
-      sides.forEach((side) => {
-          if (side[0] + side[1] > side[2]) {
-              legal += 1;
-          }
-      });
-      return legal;
-  }
+function cleanUpSides(sides) {
+    return sides.trim().replace(/( +)/g, '-').split('-').map(parseFloat)
+}
 
-console.log(findLegalTriangles(INPUT));
+function numericSort(a, b) {
+    return a - b;
+}
+
+function legalReducer(total, side) {
+    return (side[0] + side[1] > side[2]) ? total + 1 : total;
+}
+
+function findLegalTriangles(sides) {
+    return sides.reduce(legalReducer, 0);
+}
+
+function parseVerticalInput(input) {
+    const lines = input.split('\n').map(sides => sides.trim().replace(/( +)/g, '-').split('-').map(parseFloat));
+    const returnLines = [];
+    for (let i = 0; i < lines.length; i += 3) {
+        for (let j = 0; j < 3; j += 1) {
+            returnLines.push([lines[i][j], lines[i+1][j], lines[i+2][j]].sort(numericSort));
+        }
+    }
+    return returnLines;
+}
+
+console.log(findLegalTriangles(parseVerticalInput(INPUT)));
