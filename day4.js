@@ -1,8 +1,9 @@
-const ROOMLIST = '';
+const ROOMLIST = ``;
+
 function getRooms(roomList) {
-    return roomList.replace(/-/g, '').split('\n').map((room) => {
+    return roomList.split('\n').map((room) => {
         const split = room.split(/\[|\]/g);
-        const sector = room.match(/(\d+)\[/);
+        const sector = room.match(/\-(\d+)\[/);
         return {
             name: split[0].replace(/\d/g, ''),
             checksum: split[1],
@@ -23,7 +24,7 @@ function countCharacters(str) {
 }
 
 function checkRoomValidity({ name, checksum }) {
-    const count = countCharacters(name);
+    const count = countCharacters(name.replace(/-/g, ''));
     return generateChecksum(count) === checksum;
 }
 
@@ -38,9 +39,34 @@ function generateChecksum(count) {
     }).slice(0, 5).join('');
 }
 
-function countValidRooms(roomList) {
+function getValidRooms(roomList) {
     const rooms = getRooms(roomList);
-    return rooms.filter(checkRoomValidity).reduce((total, { sector }) => total + sector, 0);
+    return rooms.filter(checkRoomValidity);
 }
 
-console.log(countValidRooms(ROOMLIST));
+function getRoomName(room) {
+    const alph = 'abcdefghijklmnopqrstuvwxyz'.split('');
+    const rotation = room.sector % 26;
+    return room.name.split('').map(char => {
+        if (char === '-') return char;
+        const index = alph.indexOf(char) + rotation;
+        return alph[index] || alph[index - 26];
+    }).join('');
+}
+
+function getValidRoomNames(roomList) {
+    const validRooms = getValidRooms(roomList);
+    return validRooms.map(getRoomName);
+}
+
+function findNorthPoleRoom(roomList) {
+    const validRooms = getValidRooms(roomList);
+    const rooms = validRooms.map(getRoomName);
+    let possibilities = [];
+    rooms.forEach((name, i) => {
+        if (name.match(/north/)) possibilities.push({ name, room: validRooms[i] });
+    });
+    return possibilities;
+}
+
+console.log(findNorthPoleRoom(ROOMLIST));
