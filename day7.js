@@ -1,4 +1,8 @@
-const INPUT = ``;
+const INPUT = `\
+aba[bab]xyz
+xyx[xyx]xyx
+aaa[kek]eke
+zazbz[bzb]cdb`;
 
 function parseInput(input) {
     return input.split('\n').map((str) => {
@@ -25,9 +29,7 @@ function findAbas(supernet) {
 }
 
 function findAllAbas(supernets) {
-    let abas = [];
-    supernets.map(findAbas).forEach(abaArray => abas.splice(0, 0, ...abaArray));
-    return abas;
+    return supernets.map(findAbas).reduce((abaArray, abas) => [...abaArray, ...abas], []);
 }
 
 function hasBab(hypernet, aba) {
@@ -35,22 +37,16 @@ function hasBab(hypernet, aba) {
     return !!hypernet.match(bab);
 }
 
-function hasSomeBab(hypernets, abas) {
-    return hypernets
+function hasSomeBab(hypernets, aba) {
+    return !!hypernets.filter(hypernet => hasBab(hypernet, aba)).length;
 }
 
 function supportsSSL(ip) {
-    let ssl = false;
-    findAllAbas(ip.supernets).forEach(aba => {
-        if (ip.hypernets.filter(hypernet => hasBab(hypernet, aba)).length) {
-            ssl = true;
-        }
-    });
-    return ssl;
+    return !!findAllAbas(ip.supernets).filter(hasSomeBab.bind(null, ip.hypernets)).length;
 }
 
 function supportsTLS(ip) {
-    return ip.supernets.filter(hasAbba).length && !ip.hypernets.filter(hasAbba).length;
+    return !!ip.supernets.filter(hasAbba).length && !ip.hypernets.filter(hasAbba).length;
 }
 
 function countHowManySupportSSL(input) {
